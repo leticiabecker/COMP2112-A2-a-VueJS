@@ -1,5 +1,3 @@
-// People Array
-
 var app = new Vue({
   el: "#app",
   beforeMount: function () {
