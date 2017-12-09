@@ -15,42 +15,111 @@
     <link rel="stylesheet" href="css/layouts/email.css">
     <!--<![endif]-->
     <link rel="stylesheet" href="css/layouts/custom.css">
+
 </head>
 
 <body>
+    <div id="app">
+        <div id="layout" class="content pure-g">
+            <div id="nav" class="pure-u">
+                <a href="#" class="nav-menu-button">Menu</a>
 
-    <div id="layout" class="content pure-g">
-        <div id="nav" class="pure-u">
-            <a href="#" class="nav-menu-button">Menu</a>
+                <div class="nav-inner">
+                    <button id="compose" class="primary-button pure-button" @click="btn_addEmails">Compose</button>
 
-            <div class="nav-inner">
-                <button id="compose" class="primary-button pure-button">Compose</button>
-
-                <div class="pure-menu">
-                    <ul class="pure-menu-list">
-                        <li id="linkInbox" class="pure-menu-item"><a href="#" class="pure-menu-link">Inbox <span class="email-count" id="inboxCounter"></span></a></li>
-                        <li class="pure-menu-item"><a href="#" class="pure-menu-link">Important</a></li>
-                        <li class="pure-menu-item"><a href="#" class="pure-menu-link">Sent</a></li>
-                        <li class="pure-menu-item"><a href="#" class="pure-menu-link">Drafts</a></li>
-                        <li class="pure-menu-item"><a href="#" id="linkTrash" class="pure-menu-link">Trash</a></li>
-                        <li class="pure-menu-heading">Labels</li>
-                        <li class="pure-menu-item"><a href="#" class="pure-menu-link"><span class="email-label-personal"></span>Personal</a></li>
-                        <li class="pure-menu-item"><a href="#" class="pure-menu-link"><span class="email-label-work"></span>Work</a></li>
-                        <li class="pure-menu-item"><a href="#" class="pure-menu-link"><span class="email-label-travel"></span>Travel</a></li>
-                    </ul>
+                    <div class="pure-menu">
+                        <ul class="pure-menu-list">
+                            <li id="linkInbox" class="pure-menu-item">
+                                <a href="#" class="pure-menu-link" @click="displayInbox()">Inbox
+                                    <span class="email-count" id="inboxCounter"></span>
+                                </a>
+                            </li>
+                            <li class="pure-menu-item">
+                                <a href="#" class="pure-menu-link">Important</a>
+                            </li>
+                            <li class="pure-menu-item">
+                                <a href="#" class="pure-menu-link">Sent</a>
+                            </li>
+                            <li class="pure-menu-item">
+                                <a href="#" class="pure-menu-link">Drafts</a>
+                            </li>
+                            <li class="pure-menu-item">
+                                <a href=" # " id="linkTrash" class="pure-menu-link" @click="displayTrash()">Trash</a>
+                            </li>
+                            <li class="pure-menu-heading">Labels</li>
+                            <li class="pure-menu-item">
+                                <a href="#" class="pure-menu-link">
+                                    <span class="email-label-personal"></span>Personal</a>
+                            </li>
+                            <li class="pure-menu-item">
+                                <a href="#" class="pure-menu-link">
+                                    <span class="email-label-work"></span>Work</a>
+                            </li>
+                            <li class="pure-menu-item">
+                                <a href="#" class="pure-menu-link">
+                                    <span class="email-label-travel"></span>Travel</a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div id="list" class="pure-u-1">
-        </div>
+            <div id="list" class="pure-u-1" v-if="isEmpty()">No emails.</div>
+            <div id="list" class="pure-u-1" v-else>
+                <!-- Individual e-mail item list -->
+                <div class="email-item pure-g" :class="{ 'email-item-selected' : selected(index) }" v-for="email, index in filteredEmails"
+                    @click="selectEmail(email, index)">
+                    <div class="pure-u">
+                        <img width="64" height="64" alt="Yahoo! News&#x27; avatar" class="email-avatar" :src="email.avatar">
+                    </div>
 
-        <div id="main" class="pure-u-1">
+                    <div class="pure-u-3-4">
+                        <h5 class="email-name">{{ email.name }}</h5>
+                        <h4 class="email-subject">{{ email.subject }}</h4>
+                        <p class="email-desc">
+                            {{ email.body.substr(0,99) }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+
+
+            <div id="main" class="pure-u-1" v-if="isEmpty()">No emails.</div>
+            <div id="main" class="pure-u-1" v-else>
+                <div class="email-content">
+                    <div class="email-content-header pure-g">
+                        <div class="pure-u-1-2">
+                            <h1 class="email-content-title">{{ filteredEmails[selectedEmail].subject }}</h1>
+                            <p class="email-content-subtitle">
+                                From
+                                <a>{{ filteredEmails[selectedEmail].name }}</a> at
+                                <span>{{ filteredEmails[selectedEmail].time }}, {{ filteredEmails[selectedEmail].date }}</span>
+                            </p>
+                        </div>
+
+                        <div class="email-content-controls pure-u-1-2">
+                            <button class="secondary-button pure-button">Reply</button>
+                            <button class="secondary-button pure-button">Forward</button>
+                            <button class="secondary-button pure-button" @click="deleteEmail(filteredEmails[selectedEmail].id)">{{ this.currentFolder === 'inbox' ? 'Delete' : 'Deleted'}}</button>
+                        </div>
+                    </div>
+
+                    <div class="email-content-body">
+                        {{ filteredEmails[selectedEmail].body }}
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
+    <!-- /#app -->
 
+    <!-- Scripts -->
+    <!-- Vue.js -->
+    <script src="https://unpkg.com/vue"></script>
     <script src="https://yui-s.yahooapis.com/3.18.1/build/yui/yui-min.js"></script>
-    <script src="js/app.js"></script>
+    <script src="js/app-vue.js"></script>
     <script>
         YUI().use('node-base', 'node-event-delegate', function (Y) {
 
