@@ -29,7 +29,7 @@ var app = new Vue({
       } else {
 
         // Fetch emails from json file
-        fetch("../js/data/emails.json")
+        fetch("./js/data/emails.json")
           .then(res => res.json())
           .then(data => {
             this.emails = data;
@@ -37,13 +37,22 @@ var app = new Vue({
             this.filterFolder();
           });
 
-        fetch("../js/data/newEmails.json")
-          .then(res => res.json())
-          .then(data => {
-            this.newEmails = data;
-            console.log(data);
-            this.filterFolder();
-          });
+        // fetch("./js/data/newEmails.json")
+        //   .then(res => res.json())
+        //   .then(data => {
+        //     this.newEmails = data;
+        //     console.log(data);
+        //     this.filterFolder();
+        //   });
+
+        async function receiveNewEmails() {
+          const response = await fetch("./js/data/newEmails.json");
+          const data = await response.json();
+          app.newEmails = data;
+          console.log(data);
+          app.filterFolder();
+        }
+        receiveNewEmails();
       }
     },
 
